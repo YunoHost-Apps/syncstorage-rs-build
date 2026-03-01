@@ -1,0 +1,57 @@
+[build.env]
+passthrough = [
+    "PYO3_PYTHON=/usr/bin/python3.11",
+    "PYO3_CROSS=1",
+    "PYO3_CROSS_PYTHON_VERSION=3.11",
+    "PKG_CONFIG_ALLOW_CROSS=1",
+]
+
+
+[target.i686-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install --assume-yes libssl-dev:$CROSS_DEB_ARCH libmariadb-dev-compat:$CROSS_DEB_ARCH pkg-config apt-utils python3",
+    "apt-get install --assume-yes python3-dev:$CROSS_DEB_ARCH",
+]
+[target.i686-unknown-linux-gnu.dockerfile]
+file = "Dockerfile.bookworm-i686-unknown-linux-gnu"
+context = "../docker"
+
+[target.x86_64-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install --assume-yes libssl-dev:$CROSS_DEB_ARCH libmariadb-dev-compat:$CROSS_DEB_ARCH pkg-config apt-utils python3",
+    "apt-get install --assume-yes python3-dev:$CROSS_DEB_ARCH",
+]
+[target.x86_64-unknown-linux-gnu.dockerfile]
+file = "Dockerfile.bookworm-x86_64-unknown-linux-gnu"
+context = "../docker"
+
+[target.aarch64-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install --assume-yes libssl-dev:$CROSS_DEB_ARCH libmariadb-dev-compat:$CROSS_DEB_ARCH pkg-config apt-utils python3",
+    "curl -L https://github.com/astral-sh/python-build-standalone/releases/download/20260211/cpython-3.11.14+20260211-aarch64-unknown-linux-gnu-install_only.tar.gz | tar -xz -C /opt",
+]
+env.passthrough = [
+    "PKG_CONFIG_PATH=/opt/python/lib/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig",
+    "PYO3_CROSS_LIB_DIR=/opt/python/lib",
+]
+[target.aarch64-unknown-linux-gnu.dockerfile]
+file = "Dockerfile.bookworm-aarch64-unknown-linux-gnu"
+context = "../docker"
+
+
+[target.armv7-unknown-linux-gnueabihf]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get install --assume-yes libssl-dev:$CROSS_DEB_ARCH libmariadb-dev-compat:$CROSS_DEB_ARCH pkg-config apt-utils python3",
+    "curl -L https://github.com/astral-sh/python-build-standalone/releases/download/20260211/cpython-3.11.14+20260211-armv7-unknown-linux-gnueabihf-install_only.tar.gz | tar -xz -C /opt",
+]
+env.passthrough = [
+    "PKG_CONFIG_PATH=/opt/python/lib/pkgconfig:/usr/lib/arm-linux-gnueabihf/pkgconfig",
+    "PYO3_CROSS_LIB_DIR=/opt/python/lib",
+]
+[target.armv7-unknown-linux-gnueabihf.dockerfile]
+file = "Dockerfile.bookworm-armv7-unknown-linux-gnueabihf"
+context = "../docker"
