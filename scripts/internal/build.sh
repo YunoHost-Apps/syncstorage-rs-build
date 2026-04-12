@@ -21,11 +21,7 @@ fi
 
 mkdir "$script_dir/../../$binary_name-$version" || true
 
-for arch in x86_64-unknown-linux-gnu i686-unknown-linux-gnu aarch64-unknown-linux-gnu armv7-unknown-linux-gnueabihf; do
-  if [ "$dist" == "trixie" ] && [ "$arch" == "i686-unknown-linux-gnu" ]; then
-    echo "Skipping i686-unknown-linux-gnu for trixie, not supported"
-    continue
-  fi
+for arch in x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu armv7-unknown-linux-gnueabihf; do
   if [ -f "$script_dir/../../$binary_name-$version/$binary_name-$version-$dist-$arch.zst" ]; then
     echo "Skipping $binary_name-$version-$arch.zst, already exists"
     continue

@@ -16,7 +16,7 @@ fi
 
 mkdir "$script_dir/../$binary_name-$version" || true
 
-for arch in x86_64-unknown-linux-gnu i686-unknown-linux-gnu aarch64-unknown-linux-gnu armv7-unknown-linux-gnueabihf; do
+for arch in x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu armv7-unknown-linux-gnueabihf; do
   pushd "$build_directory/$binary_name/target/$arch/release" || (echo "Failed to change directory to $build_directory/$binary_name/target/$arch/release" && exit 1)
     zstd -19 -T0 --ultra "$binary_name" -o "$script_dir/../$binary_name-$version/$binary_name-$version-$arch.zst"
   popd || (echo "Failed to return to previous directory" && exit 1)
