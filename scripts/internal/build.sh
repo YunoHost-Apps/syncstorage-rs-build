@@ -27,7 +27,7 @@ for arch in x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu armv7-unknown-lin
     continue
   fi
   pushd "$build_directory/$subdir" || (echo "Failed to change directory to $build_directory/$subdir" && exit 1)
-    # cross clean
+    cargo clean
     CROSS_CONFIG="$script_dir/../../Cross-$dist.toml" cross build --release --frozen --target "$arch" $passthrough_args
   popd || (echo "Failed to return to previous directory" && exit 1)
   pushd "$build_directory/target/$arch/release" || (echo "Failed to change directory to $build_directory/target/$arch/release" && exit 1)
