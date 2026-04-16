@@ -57,10 +57,10 @@ max_kernel_version() {
 main() {
     # arch in the rust target
     local arch="${1}"
-    local kversion=6.1.0-33
+    local kversion=6.1.0-42
     local dist=${2}
     if [ "$dist" == "trixie" ]; then
-        kversion=6.12.31
+        kversion=6.12.74+deb13+1
     fi
 
     local debsource="deb http://http.debian.net/debian/ ${dist} main"
