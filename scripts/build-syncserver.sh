@@ -17,3 +17,5 @@ pushd "$script_dir/../syncstorage-rs" || (echo "Failed to change directory to $s
   cross clean
 popd || (echo "Failed to return to previous directory" && exit 1)
 "$script_dir/internal/build.sh" syncstorage-rs syncserver syncserver trixie "$build_tag" --no-default-features --features 'syncstorage-db/mysql' --features 'py_verifier'
+
+"$script_dir/internal/export-poetry-requirements.sh" "$script_dir/../syncstorage-rs" "$build_tag" syncserver
