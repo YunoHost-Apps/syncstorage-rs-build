@@ -13,4 +13,4 @@ fi
 script_dir="$(dirname "$(realpath "$0")")"
 
 # Build diesel_cli
-"$script_dir/internal/build.sh" diesel diesel_cli diesel bookworm "$build_tag" --features mysql --no-default-features
+"$script_dir/internal/build.sh" diesel diesel_cli diesel bookworm "$build_tag" --features postgres --no-default-features
