@@ -41,6 +41,18 @@ prepare_syncstorage_checkout() {
   git -C "$syncstorage_dir" checkout --detach "$build_tag"
 }
 
+remove_release_debug_profile() {
+  local cargo_toml="$syncstorage_dir/Cargo.toml"
+
+  if [ ! -f "$cargo_toml" ]; then
+    echo "Missing file: $cargo_toml"
+    exit 1
+  fi
+
+  # Remove the release debug profile block so upstream debug symbols are disabled.
+  perl -0pi -e 's/\n\[profile\.release\]\n(?:#.*\n)*debug\s*=\s*1\n?//g' "$cargo_toml"
+}
+
 publish_artifacts() {
   if ! command -v gh >/dev/null 2>&1; then
     echo "Skipping publish: gh CLI is not installed."
@@ -79,6 +91,7 @@ publish_artifacts() {
 
 require_container_engine
 prepare_syncstorage_checkout
+remove_release_debug_profile
 
 "$script_dir/internal/build.sh" syncstorage-rs syncserver syncserver bookworm "$build_tag" --config profile.release.debug=0 --no-default-features --features postgres --features py_verifier
 pushd "$syncstorage_dir" || (echo "Failed to change directory to $syncstorage_dir" && exit 1)
