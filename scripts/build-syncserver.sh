@@ -3,10 +3,19 @@
 set -euo pipefail
 
 build_tag="$1"
+publish_requested=false
 
 if [ -z "$build_tag" ]; then
-  echo "Usage: $0 <build_tag>"
+  echo "Usage: $0 <build_tag> [--publish]"
   echo "Example: $0 0.21.1"
+  exit 1
+fi
+
+if [ "${2:-}" = "--publish" ]; then
+  publish_requested=true
+elif [ -n "${2:-}" ]; then
+  echo "Unknown argument: $2"
+  echo "Usage: $0 <build_tag> [--publish]"
   exit 1
 fi
 
@@ -78,4 +87,8 @@ popd || (echo "Failed to return to previous directory" && exit 1)
 "$script_dir/internal/build.sh" syncstorage-rs syncserver syncserver trixie "$build_tag" --config profile.release.debug=0 --no-default-features --features postgres --features py_verifier
 
 "$script_dir/internal/export-poetry-requirements.sh" "$syncstorage_dir" "$build_tag" syncserver
-publish_artifacts
+if [ "$publish_requested" = true ]; then
+  publish_artifacts
+else
+  echo "Skipping publish: pass --publish to upload artifacts to GitHub Releases."
+fi

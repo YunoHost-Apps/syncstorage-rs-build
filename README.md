@@ -25,20 +25,20 @@ This will clone this repo and upstream repos of SyncStorage and Diesel
 # Building
 
 - Checkout preferred revision/tag/ref under `syncstorage-rs` for syncserver builds
-- Run either `./scripts/build-syncserver.sh <version>` or `./scripts/build-diesel.sh <upstream_tag>`
+- Run either `./scripts/build-syncserver.sh <version> [--publish]` or `./scripts/build-diesel.sh <upstream_tag> [--publish]`
 
 `build-diesel.sh` will:
 - Ensure `./diesel` is cloned from `diesel-rs/diesel`
 - Fetch tags and checkout the provided upstream tag in detached HEAD mode
 - Build Diesel CLI artifacts via cross-rs (requires docker or podman)
-- Publish artifacts to this repository releases as tag `diesel-<upstream_tag>` when `gh` is installed and authenticated
+- Optionally publish artifacts as tag `diesel-<upstream_tag>` when called with `--publish` and `gh` is installed/authenticated
 
 `build-syncserver.sh` will:
 - Ensure `./syncstorage-rs` is cloned from `mozilla-services/syncstorage-rs`
 - Fetch tags and checkout the provided upstream tag in detached HEAD mode
 - Build syncserver artifacts for Debian Bookworm and Trixie with `postgres` and `py_verifier` only
 - Force `profile.release.debug=0` during builds
-- Publish artifacts to this repository releases as tag `syncserver-<upstream_tag>` when `gh` is installed and authenticated
+- Optionally publish artifacts as tag `syncserver-<upstream_tag>` when called with `--publish` and `gh` is installed/authenticated
 
 If all goes well you'll have a `<target>-<version>` directory with all the artifacts after the script is done.
 

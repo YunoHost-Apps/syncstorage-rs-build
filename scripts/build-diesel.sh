@@ -3,10 +3,19 @@
 set -euo pipefail
 
 build_tag="$1"
+publish_requested=false
 
 if [ -z "$build_tag" ]; then
-  echo "Usage: $0 <build_tag>"
+  echo "Usage: $0 <build_tag> [--publish]"
   echo "Example: $0 v2.3.6"
+  exit 1
+fi
+
+if [ "${2:-}" = "--publish" ]; then
+  publish_requested=true
+elif [ -n "${2:-}" ]; then
+  echo "Unknown argument: $2"
+  echo "Usage: $0 <build_tag> [--publish]"
   exit 1
 fi
 
@@ -73,4 +82,8 @@ prepare_diesel_checkout
 
 # Build diesel_cli
 "$script_dir/internal/build.sh" diesel diesel_cli diesel bookworm "$build_tag" --features postgres --no-default-features
-#publish_artifacts
+if [ "$publish_requested" = true ]; then
+  publish_artifacts
+else
+  echo "Skipping publish: pass --publish to upload artifacts to GitHub Releases."
+fi
