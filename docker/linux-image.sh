@@ -6,62 +6,10 @@ set -euo pipefail
 # shellcheck disable=SC1091
 . lib.sh
 
-max_kernel_version() {
-    # kernel versions have the following format:
-    #   `5.10.0-10-$arch`, where the `$arch` may be optional.
-    local IFS=$'\n'
-    local -a versions
-    local major=0
-    local minor=0
-    local patch=0
-    local release=0
-    local index=0
-    local version
-    local x
-    local y
-    local z
-    local r
-    local is_larger
-
-    read -r -d '' -a versions <<<"$1"
-    for i in "${!versions[@]}"; do
-        version="${versions[$i]}"
-        x=$(echo "$version" | cut -d '.' -f 1)
-        y=$(echo "$version" | cut -d '.' -f 2)
-        z=$(echo "$version" | cut -d '.' -f 3 | cut -d '-' -f 1)
-        r=$(echo "$version" | cut -d '-' -f 2)
-        is_larger=
-
-        if [ "$x" -gt "$major" ]; then
-            is_larger=1
-        elif [ "$x" -eq "$major" ] && [ "$y" -gt "$minor" ]; then
-            is_larger=1
-        elif [ "$x" -eq "$major" ] && [ "$y" -eq "$minor" ] && [ "$z" -gt "$patch" ]; then
-            is_larger=1
-        elif [ "$x" -eq "$major" ] && [ "$y" -eq "$minor" ] && [ "$z" -eq "$patch" ] && [ "$r" -gt "$release" ]; then
-            is_larger=1
-        fi
-
-        if [ -n "$is_larger" ]; then
-            index="$i"
-            major="$x"
-            minor="$y"
-            patch="$z"
-            release="$r"
-        fi
-    done
-
-    echo "${versions[index]}"
-}
-
 main() {
     # arch in the rust target
     local arch="${1}"
-    local kversion=6.1.0-50
     local dist=${2}
-    if [ "$dist" == "trixie" ]; then
-        kversion=6.12.95+deb13
-    fi
 
     local debsource="deb http://http.debian.net/debian/ ${dist} main"
     debsource="${debsource}\ndeb http://security.debian.org/ ${dist}-security main"
@@ -77,7 +25,7 @@ main() {
     case "${arch}" in
     aarch64)
         arch=arm64
-        kernel="${kversion}-arm64"
+        kernel='6.*-arm64'
         deps=(libcrypt1:"${arch}")
         ;;
     armv7)
@@ -87,7 +35,7 @@ main() {
         ;;
     i686)
         arch=i386
-        kernel="${kversion}-686"
+        kernel='6.*-686'
         deps=(libcrypt1:"${arch}")
         ;;
     mips)
@@ -109,8 +57,7 @@ main() {
     powerpc)
         # there is no buster powerpc port, so we use jessie
         # use a more recent kernel from backports
-        kversion='4.9.0-0.bpo.6'
-        kernel="${kversion}-powerpc"
+        kernel='4.9.0-0.bpo.6-powerpc'
         debsource="deb http://archive.debian.org/debian jessie main"
         debsource="${debsource}\ndeb http://archive.debian.org/debian jessie-backports main"
         debsource="${debsource}\ndeb http://ftp.ports.debian.org/debian-ports unstable main"
@@ -160,7 +107,7 @@ main() {
         ;;
     x86_64)
         arch=amd64
-        kernel="${kversion}-amd64"
+        kernel='6.*-amd64'
         deps=(libcrypt1:"${arch}")
         ;;
     *)
@@ -229,13 +176,15 @@ main() {
     # `linux-image-4.*-4kc-malta` can match more than 1 package,
     # which will prevent further steps from working.
     if [[ "$kernel" == *'*'* ]]; then
-        # Need an exact match for start and end, to avoid debug kernels.
-        # Afterwards, need to do a complex sort for the best kernel version,
-        # since the sort is non-trivial and must extract subcomponents.
-        packages=$(apt-cache search ^linux-image-"$kernel$" --names-only)
-        names=$(echo "$packages" | cut -d ' ' -f 1)
-        kversions="${names//linux-image-/}"
-        kernel=$(max_kernel_version "$kversions")
+        local kernel_pattern="$kernel"
+        local package_names
+        package_names=$(apt-cache search ^linux-image-"$kernel_pattern$" --names-only | awk '{print $1}')
+        kernel=$(echo "$package_names" | sort -V | tail -n 1 | sed 's/^linux-image-//')
+
+        if [[ -z "$kernel" ]]; then
+            echo "Unable to resolve kernel package for pattern: linux-image-$kernel_pattern"
+            exit 1
+        fi
     fi
 
     cd "/qemu/${arch}"
