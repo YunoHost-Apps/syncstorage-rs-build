@@ -23,7 +23,7 @@ script_dir="$(dirname "$(realpath "$0")")"
 repo_root="$(realpath "$script_dir/..")"
 diesel_dir="$repo_root/diesel"
 artifact_dir="$repo_root/diesel-$build_tag"
-release_tag="diesel-$build_tag"
+release_tag="diesel-$build_tag-postgres"
 
 require_container_engine() {
   if ! command -v docker >/dev/null 2>&1 && ! command -v podman >/dev/null 2>&1; then

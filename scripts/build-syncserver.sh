@@ -23,7 +23,7 @@ script_dir="$(dirname "$(realpath "$0")")"
 repo_root="$(realpath "$script_dir/..")"
 syncstorage_dir="$repo_root/syncstorage-rs"
 artifact_dir="$repo_root/syncserver-$build_tag"
-release_tag="syncserver-$build_tag"
+release_tag="syncserver-$build_tag-postgres"
 
 require_container_engine() {
   if ! command -v docker >/dev/null 2>&1 && ! command -v podman >/dev/null 2>&1; then
